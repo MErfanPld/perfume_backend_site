@@ -8,7 +8,7 @@ from pathlib import Path
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from catalog.services.importer import (
+from products.services.importer import (
     SourceUnavailableError,
     run_import_from_fixture,
     run_import_from_url,
@@ -67,8 +67,8 @@ class Command(BaseCommand):
                 raise CommandError(f"Fixture file not found: {path}")
             self.stdout.write(self.style.WARNING(f"Using local fixture: {path}"))
             if dry_run:
-                from catalog.services.importer import load_fixture
-                from catalog.services.parser import parse_listing_html
+                from products.services.importer import load_fixture
+                from products.services.parser import parse_listing_html
 
                 html = load_fixture(path)
                 products = parse_listing_html(
@@ -92,8 +92,8 @@ class Command(BaseCommand):
             self.stdout.write(f"Fetching: {url}")
             try:
                 if dry_run:
-                    from catalog.services.importer import fetch_html
-                    from catalog.services.parser import parse_listing_html
+                    from products.services.importer import fetch_html
+                    from products.services.parser import parse_listing_html
 
                     html = fetch_html(url)
                     products = parse_listing_html(

@@ -14,8 +14,8 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
-from catalog.models import Product
-from catalog.services.parser import ParsedProduct, parse_listing_html
+from products.models import Product
+from products.services.parser import ParsedProduct, parse_listing_html
 
 logger = logging.getLogger(__name__)
 
@@ -138,17 +138,58 @@ def import_products(
             logger.exception("Error importing product %s: %s", parsed.source_product_id, exc)
     return stats
 
-
 def run_import_from_url(
     url: str,
     source_site: str | None = None,
     limit: int | None = None,
     base_url: str | None = None,
 ) -> dict:
-    html = fetch_html(url)
-    base = base_url or getattr(settings, "SOURCE_BASE_URL", "https://mehrdadgallery.com")
-    parsed = parse_listing_html(html, base_url=base)
-    return import_products(parsed, source_site=source_site, limit=limit)
+    from urllib.parse import urljoin
+    from bs4 import BeautifulSoup
+
+    base = base_url or getattr(
+        settings, "SOURCE_BASE_URL", "https://mehrdadgallery.com"
+    )
+    limit = limit if limit is not None else getattr(
+        settings, "IMPORT_DEFAULT_LIMIT", None
+    )
+
+    stats = {"created": 0, "updated": 0, "skipped": 0, "errors": 0}
+    visited = set()
+    current_url = url
+    count = 0
+
+    while current_url and current_url not in visited:
+        if limit is not None and count >= limit:
+            break
+
+        visited.add(current_url)
+        html = fetch_html(current_url)
+        products = parse_listing_html(html, base_url=base)
+
+        remaining = None if limit is None else limit - count
+        page_stats = import_products(
+            products if remaining is None else products[:remaining],
+            source_site=source_site,
+            limit=remaining,
+        )
+
+        for key in stats:
+            stats[key] += page_stats[key]
+        count += len(products if remaining is None else products[:remaining])
+
+        soup = BeautifulSoup(html, "html.parser")
+        next_link = (
+            soup.select_one("a.next.page-numbers")
+            or soup.select_one("a[rel='next']")
+        )
+        current_url = (
+            urljoin(current_url, next_link.get("href"))
+            if next_link and next_link.get("href")
+            else None
+        )
+
+    return stats
 
 
 def run_import_from_fixture(
@@ -158,6 +199,8 @@ def run_import_from_fixture(
     base_url: str | None = None,
 ) -> dict:
     html = load_fixture(fixture_path)
-    base = base_url or getattr(settings, "SOURCE_BASE_URL", "https://mehrdadgallery.com")
+    base = base_url or getattr(
+        settings, "SOURCE_BASE_URL", "https://mehrdadgallery.com"
+    )
     parsed = parse_listing_html(html, base_url=base)
     return import_products(parsed, source_site=source_site, limit=limit)

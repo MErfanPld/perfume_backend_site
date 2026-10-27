@@ -4,14 +4,14 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from catalog.models import Product
-from catalog.services.importer import (
+from products.models import Product
+from products.services.importer import (
     SourceUnavailableError,
     import_products,
     run_import_from_fixture,
     upsert_product,
 )
-from catalog.services.parser import ParsedProduct
+from products.services.parser import ParsedProduct
 
 FIXTURE = Path(__file__).resolve().parent.parent / "fixtures" / "mehrdadgallery_shop_sample.html"
 
@@ -98,9 +98,9 @@ class ImportFromFixtureTests(TestCase):
 
 
 class NetworkErrorTests(TestCase):
-    @patch("catalog.services.importer.urlopen")
+    @patch("products.services.importer.urlopen")
     def test_source_unavailable(self, mock_urlopen):
-        from catalog.services.importer import fetch_html
+        from products.services.importer import fetch_html
 
         mock_urlopen.side_effect = TimeoutError("timed out")
         with self.assertRaises(SourceUnavailableError):

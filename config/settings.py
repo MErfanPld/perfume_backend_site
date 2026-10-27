@@ -19,7 +19,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "catalog",
+    "categories",
+    "products",
 ]
 
 MIDDLEWARE = [
@@ -77,7 +78,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Source import settings (prototype)
 SOURCE_SITE_ID = "mehrdadgallery"
 SOURCE_BASE_URL = "https://mehrdadgallery.com"
-IMPORT_DEFAULT_LIMIT = 5
+IMPORT_DEFAULT_LIMIT = None
 IMPORT_REQUEST_TIMEOUT = 15
 IMPORT_USER_AGENT = (
     "Mozilla/5.0 (compatible; PerfumeImportBot/0.1; "

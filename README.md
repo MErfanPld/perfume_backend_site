@@ -5,7 +5,7 @@ Minimal Django prototype for importing perfume product listings from an external
 ## Important limitations
 
 - Live HTTP requests to `https://mehrdadgallery.com/` timed out from the development environment used for this phase.
-- The parser and import command are therefore tested against a **clearly labeled local HTML fixture** (`catalog/fixtures/mehrdadgallery_shop_sample.html`).
+- The parser and import command are therefore tested against a **clearly labeled local HTML fixture** (`products/fixtures/mehrdadgallery_shop_sample.html`).
 - Exact stock quantities are **not** exposed in the observed public listing data; `stock_quantity` is always stored as `null` unless an explicit numeric quantity appears in the source HTML.
 - Only binary availability (`in_stock` / `out_of_stock` / `unknown`) is synchronized from public pages.
 
@@ -16,13 +16,13 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py test catalog
+python manage.py test products
 ```
 
 ## Import from fixture (recommended while live access is blocked)
 
 ```bash
-python manage.py import_source_products --fixture catalog/fixtures/mehrdadgallery_shop_sample.html --limit 5
+python manage.py import_source_products --fixture products/fixtures/mehrdadgallery_shop_sample.html --limit 5
 ```
 
 ## Import from live URL (when the source is reachable)
@@ -35,7 +35,7 @@ If the remote host is unreachable the command exits with a clear error and does 
 
 ## Model
 
-`catalog.Product` stores:
+`products.Product` stores:
 
 - `source_site` + `source_product_id` (unique together)
 - name, product_url, regular_price, sale_price, currency

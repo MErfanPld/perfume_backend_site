@@ -26,6 +26,13 @@ class Product(models.Model):
         choices=Availability.choices,
         default=Availability.UNKNOWN,
     )
+
+    categories = models.ManyToManyField(
+        "categories.Category",
+        related_name="products",
+        blank=True,
+        verbose_name="دسته‌بندی‌ها",
+    )    
     # Explicitly nullable: null means "quantity unknown", never invent a number.
     stock_quantity = models.PositiveIntegerField(null=True, blank=True, default=None)
     image_url = models.URLField(max_length=1024, null=True, blank=True)

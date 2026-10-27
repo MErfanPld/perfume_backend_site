@@ -3,7 +3,7 @@ from pathlib import Path
 
 from django.test import TestCase
 
-from catalog.services.parser import (
+from products.services.parser import (
     detect_availability,
     extract_prices_from_text,
     normalize_digits,
